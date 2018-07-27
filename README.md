@@ -29,7 +29,7 @@ For users, in isolation, the basic syntax of a pluggable type system enables **c
 
 ![](https://code.visualstudio.com/assets/docs/editor/editingevolved/ctrlhover.png)
 
-For **syntax-based** type system users (e.g. typescript and flow), it empowers them enabling browsers/node (which takes vanilla javascript) to take typed code directly (i.e. without transpilation) and plug them in with developer tools (e.g. through a [language server protocol](https://github.com/Microsoft/language-server-protocol)).
+For **syntax-based** type system users (e.g. typescript and flow), it empowers them turning them part of a supported/compatible language extensions (type system plugins), enabling browsers/node (which takes vanilla javascript) to take typed code directly (i.e. without transpilation) and plug them in with developer tools (e.g. through a [language server protocol](https://github.com/Microsoft/language-server-protocol)).
 
 ![type checking](browser.png)
 
@@ -46,7 +46,7 @@ Square.prototype.draw = function() {
 };
 ```
 
-Could, with the proposed pluggable extension points, be written as:
+Which, with the syntax extensions, enables them to be written as:
 
 ```javascript
 class Square implements Shape {
@@ -60,7 +60,7 @@ For TC39, pluggable type systems enable:
 1. the formalization of current norm (e.g. officializes typescript/flow as type system plugins rather than incompatible languages)
 1. a stepping stone on the path towards finding unification ([example](http://code.sgo.to/proposal-optional-types/))
 
-Having said that, the main **drawback** with pluggable type systems for TC39 it that they corner ourselves from gradual typing. We believe there is substantial evidence in the industry and academia that types can't incur in significant performance benefits.
+Having said that, the main **drawback** with pluggable type systems for TC39 it that they corner ourselves from **gradual typing**. We believe, however, that there is significant evidence in the research literature that gradual typing incurs a significant performance penalty, which makes it impractical. In addition, TypeScript, Flow, and Closure Compiler have demonstrated that optional typing works well for JS at scale.
 
 # Syntax
 
