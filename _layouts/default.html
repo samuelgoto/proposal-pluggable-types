@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,maximum-scale=2">
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/anchor-js/3.2.0/anchor.min.js"></script>
+    <style>
+    .anchorjs-link {
+      color: inherit !important;
+      text-decoration: none !important; /* do not underline */
+    }
+
+    @media (max-width: 768px) {
+      /* Do not display AnchorJS icon on less than 768px view point */
+      .anchorjs-link {
+        display: none;
+      }
+    }
+
+    *:hover > .anchorjs-link {
+      opacity: .75;
+      /* To fade links as they appear, change transition-property from 'color' to 'all' */
+      -webkit-transition: color .16s linear;
+      transition: color .16s linear;
+    }
+
+    *:hover > .anchorjs-link:hover,
+    .anchorjs-link:focus {
+      text-decoration: none !important; /* do not underline */
+      opacity: 1;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="header_wrap" class="outer">
+      <a href="{{ site.github.repository_url }}">
+        <img style="position: absolute; top: 0; right: 0; border: 0; padding: 0; margin: 0; box-shadow: unset;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub">
+      </a>
+      <header class="inner">
+        <h1 id="project_title">
+          <a href="{{ site.baseurl }}/index.html" style="color: white;">{{ site.title | default: site.github.repository_name }}</a>
+        </h1>
+        <h2 id="project_tagline">
+          {{ site.description | default: site.github.project_tagline }}
+        </h2>
+      </header>
+    </div>
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner post-content">
+        {{ content }}
+      </section>
+    </div>
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        {% if site.github.is_project_page %}
+        <p class="copyright">{{ site.title | default: site.github.repository_name }} maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a></p>
+        {% endif %}
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    <script>
+    (function () {
+      'use strict';
+      anchors.options.placement = "left";
+      anchors.add(".post-content > h1, .post-content > h2, .post-content > h3, .post-content > h4, .post-content > h5, .post-content > h6");
+    })();
+    </script>
+
+  </body>
+</html>
