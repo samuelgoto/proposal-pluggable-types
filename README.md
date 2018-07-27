@@ -5,7 +5,7 @@ This is a [stage 0](https://tc39.github.io/process-document/) proposal to add a 
 
 A **pluggable** type system is a set of syntactical entrypoints that serve as type **annotations** (i.e. they have no observable semantics at runtime) that formally enable (i.e. without transpilation) optional type checking and inferencing to be plugged-in from **userland** (e.g. typescript, flow and closure).
 
-```javascript
+```typescript
 class BankAccount {  
     balance: number;  
     constructor(initially: number) {  
@@ -18,22 +18,26 @@ class BankAccount {
 }
 ```
 
-Since pluggable type systems have no observable semantics at runtime (as opposed to [gradual](http://code.sgo.to/proposal-optional-types/FAQ.html#sound-gradual-typing) type systems), **all** of their benefits are materialized while writing code in code editors or reading code while debugging (as opposed to runtime implementations).
+Since pluggable type systems have no observable semantics at runtime (as opposed to [gradual](http://code.sgo.to/proposal-optional-types/FAQ.html#sound-gradual-typing) type systems), **all** of their benefits are materialized while writing code in code editors or reading code while debugging.
 
-In isolation, exclusively with the syntactical annotations (e.g. standard JavaScript), a pluggable type system enables in editors and debugger (e.g. browsers):
-
-![autocompletion](autocomplete.png)
+In isolation, exclusively with the syntactical annotations (e.g. standard JavaScript), a pluggable type system enables in editors and debuggers (e.g. browsers):
 
 - code navigation
 - code autocompletion
+
+![autocompletion](autocomplete.png)
+
 - structural type checking (todo(goto): sanity check with @dimvar?)
 - type checking for enums and primitives (todo(goto): sanity check with @dimvar?)
+
+![type checking](browser.png)
+
 
 In collaboration with userland type systems, a pluggable type system enables:
 
 - innovation of type systems to happen in userland
 - unification of syntax between type systems
-- a **stepping stone** towards a unified [optional type system](http://code.sgo.to/proposal-optional-types/)
+- a **stepping stone** towards a unified optional type system ([example](http://code.sgo.to/proposal-optional-types/))
 
 Importantly, pluggable type systems are a normative formalization of current practices (typescript and flow).
 
