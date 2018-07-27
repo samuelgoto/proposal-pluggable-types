@@ -1,9 +1,9 @@
-This is a [stage 0](https://tc39.github.io/process-document/) proposal to add [pluggable type systems](http://bracha.org/pluggableTypesPosition.pdf) to JavaScript.
+This is a [stage 0](https://tc39.github.io/process-document/) proposal to add a [pluggable type system](http://bracha.org/pluggableTypesPosition.pdf) to JavaScript.
 
 * Authors: @samuelgoto, @dimvar, @gbracha
 * Early reviewers: 
 
-A pluggable type system is a set of syntactical extensions that serve as type annotations (i.e. they have no observable semantics at runtime) that enable optional type checking and inferencing to be defined in userland.
+A **pluggable** type system is a set of syntactical entrypoints that serve as type **annotations** (i.e. they have no observable semantics at runtime) that formally enable (i.e. without transpilation) optional type checking and inferencing to be plugged-in from **userland** (e.g. typescript, flow and closure).
 
 ```javascript
 class BankAccount {  
@@ -18,26 +18,28 @@ class BankAccount {
 }
 ```
 
-Since pluggable type systems (as opposed to [gradual](http://code.sgo.to/proposal-optional-types/FAQ.html#sound-gradual-typing) type systems) have no observable semantics at runtime (except for being valid syntax), **all** of their benefits are materialized while writing code in code editors (as opposed to runtime implementations). Specifically, a pluggable type system enables:
+Since pluggable type systems have no observable semantics at runtime (as opposed to [gradual](http://code.sgo.to/proposal-optional-types/FAQ.html#sound-gradual-typing) type systems), **all** of their benefits are materialized while writing code in code editors or reading code while debugging (as opposed to runtime implementations).
 
-- editor-level code navigation
-- editor-level code autocompletion
-- structural/nominal type checking (todo(goto): sanity check?)
-- type checking for enums and primitives (todo(goto): sanity check?)
+In isolation, exclusively with the syntactical annotations (e.g. standard JavaScript), a pluggable type system enables in editors and debugger (e.g. browsers):
 
-In addition to these immediate user benefits, pluggable type systems enable:
+![autocompletion](autocomplete.png)
+
+- code navigation
+- code autocompletion
+- structural type checking (todo(goto): sanity check with @dimvar?)
+- type checking for enums and primitives (todo(goto): sanity check with @dimvar?)
+
+In collaboration with userland type systems, a pluggable type system enables:
 
 - innovation of type systems to happen in userland
 - unification of syntax between type systems
-- a stepping stone towards a unified [optional type system](http://code.sgo.to/proposal-optional-types/)
+- a **stepping stone** towards a unified [optional type system](http://code.sgo.to/proposal-optional-types/)
 
-To a large extent, pluggable type systems are a normative codification and formalization of current practices (typescript and flow)
+Importantly, pluggable type systems are a normative formalization of current practices (typescript and flow).
 
-The main drawback with pluggable type systems it that they corner ourselves from gradual typing. But we believe there is substantial industry and academic evidence that types can't incur in significant performance benefits
+The main drawback with pluggable type systems it that they corner ourselves from gradual typing. We believe there is substantial evidence in the industry and academia that types can't incur in significant performance benefits.
 
 # Syntax
-
-hello world
 
 # Object Type Literals
 
