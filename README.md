@@ -23,7 +23,7 @@ Pluggable type systems support:
 1. vanilla javascript users
 1. syntax-based type system users (e.g. typescript and flow)
 1. comments-based type system users (e.g. closure)
-1. a stepping stone towards unification
+1. a stepping stone towards a unified [optional type system](https://github.com/samuelgoto/proposal-optional-types)
 
 For users, in isolation, the basic syntax of a pluggable type system enables **code navigation** (e.g. ctrl-click jumps to definition) in code editors (e.g. developer tools in browsers).
 
@@ -37,13 +37,6 @@ For [@comments-based](http://usejsdoc.org/) type systems user's (e.g. closure co
 
 ```javascript
 /**
- * A shape.
- * @interface
- */
-function Shape() {};
-Shape.prototype.draw = function() {};
-
-/**
  * @constructor
  * @implements {Shape}
  */
@@ -56,10 +49,6 @@ Square.prototype.draw = function() {
 Could, with the proposed pluggable extension points, be written as:
 
 ```javascript
-interface Shape {
-  draw();
-}
-
 class Square implements Shape {
   ...
 }
