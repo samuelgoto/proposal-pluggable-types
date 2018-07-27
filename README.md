@@ -93,6 +93,10 @@ function add(x: number, y: number): number {
 
 let mul: (x: number, y: number) => number =
     function(x: number, y: number): number { return x * y; };
+
+function vote(candidate: string, callback: (result: string) => any) {  
+   // ...  
+}
 ```
 
 Optional parameters:
@@ -138,14 +142,16 @@ class Clock implements Timer {
 # Generics
 
 ```javascript
+interface Array<T> {  
+    reverse(): T[];  
+    sort(compareFn?: (a: T, b: T) => number): T[];  
+    // ...   
+}
+
 function identity<T>(arg: T): T {
     return arg;
 }
-```
 
-Generic classes:
-
-```javascript
 class GenericNumber<T> {
     zeroValue: T;
     add: (x: T, y: T) => T;
