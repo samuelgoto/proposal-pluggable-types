@@ -110,35 +110,30 @@ function buildName(firstName: string, lastName?: string) {
 # Classes
 
 ```javascript
-interface ClockInterface {
-    currentTime: Date;
-    setTime(d: Date);
-}
-
-class Clock implements ClockInterface {
-    currentTime: Date;
-    setTime(d: Date) {
-        this.currentTime = d;
-    }
-    constructor(h: number, m: number) { }
+class BankAccount {  
+  balance: number;  
+  constructor(initially: number) {  
+    this.balance = initially;  
+  }  
+  deposit(credit: number) {  
+    this.balance += credit;  
+    return this.balance;  
+  }  
 }
 ```
 
-# Classes
+# Interfaces
 
 ```javascript
-class BankAccount {  
-    balance: number;  
-    constructor(initially: number) {  
-        this.balance = initially;  
-    }  
-    deposit(credit: number) {  
-        this.balance += credit;  
-        return this.balance;  
-    }  
+interface Timer {
+  currentTime: Date;
+  setTime(d: Date);
+}
+
+class Clock implements Timer {
+  ...
 }
 ```
-
 
 # Generics
 
