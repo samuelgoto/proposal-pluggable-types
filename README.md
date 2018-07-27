@@ -25,15 +25,15 @@ Pluggable type systems support:
 1. comments-based type system users (e.g. closure)
 1. a stepping stone towards a unified [optional type system](https://github.com/samuelgoto/proposal-optional-types)
 
-For users, in isolation, the basic syntax of a pluggable type system enables **code navigation** (e.g. ctrl-click jumps to definition) in code editors (e.g. developer tools in browsers).
+For users, in isolation, the basic syntax of a pluggable type systems enables **code navigation** (e.g. ctrl-click jumps to definition) in code editors (e.g. developer tools in browsers).
 
 ![](https://code.visualstudio.com/assets/docs/editor/editingevolved/ctrlhover.png)
 
-For **syntax-based** type system users (e.g. typescript and flow), it empowers them turning them part of a supported/compatible language extensions (type system plugins), enabling browsers/node (which takes vanilla javascript) to take typed code directly (i.e. without transpilation) and plug them in with developer tools (e.g. through a [language server protocol](https://github.com/Microsoft/language-server-protocol)).
+For **syntax-based** type system users (e.g. typescript and flow), it empowers them by making them part of a supported/compatible/standard language extension (type system plugins), enabling browsers/node (which takes vanilla javascript) to take typed code directly (i.e. without transpilation) and plug them in with developer tools (e.g. through a [language server protocol](https://github.com/Microsoft/language-server-protocol)).
 
 ![type checking](browser.png)
 
-For [@comments-based](http://usejsdoc.org/) type systems user's (e.g. closure compiler, which, by design, wants to be strictly under the standard grammar), it enables them to move to natively supported syntax, improving ergonomics while still maintaining backwards compatibility with the existing type system. For example:
+For [@comments-based](http://usejsdoc.org/) type systems user's (e.g. closure compiler, which, by design, wants to be strictly under the standard grammar), it enables them to move to natively supported syntax, improving ergonomics while still maintaining **backwards compatibility** with the existing type system. For example:
 
 ```javascript
 /**
@@ -58,37 +58,70 @@ For TC39, pluggable type systems enable:
 
 1. the delegation of the development/innovation of a type system to userland
 1. the formalization of current norm (e.g. officializes typescript/flow as type system plugins rather than incompatible languages)
-1. a stepping stone on the path towards finding unification ([example](http://code.sgo.to/proposal-optional-types/))
+1. a stepping stone on the path towards finding a unified [optional type system](http://code.sgo.to/proposal-optional-types/)
 
-Having said that, the main **drawback** with pluggable type systems for TC39 it that they corner ourselves from **gradual typing**. We believe, however, that there is significant evidence in the research literature that gradual typing incurs a significant performance penalty, which makes it impractical. In addition, TypeScript, Flow, and Closure Compiler have demonstrated that optional typing works well for JS at scale.
+Having said that, the main **drawback** with pluggable type systems for TC39 it that they corner ourselves from **gradual typing** (i.e. once introduced without runtime semantics, they can't incur into runtime semantics afterwards).
+
+We believe, however, that there is significant evidence in the research literature that gradual typing incurs a significant performance penalty, which makes it impractical. In addition, TypeScript, Flow, and Closure Compiler have demonstrated that optional typing works well for JS at scale.
 
 # Syntax
 
-# Object Type Literals
+In this proposal, we describe syntactical extensions that have no runtime semantics. Every extension below is semantically sequivalent to wrapping them in ```/* */``` comments.
+
+# Variables
 
 ```javascript
-var MakePoint: () => {  
-    x: number; y: number;  
-};
+let isDone: boolean = false;
+let decimal: number = 6;
+let hex: number = 0xf00d;
+let binary: number = 0b1010;
+let octal: number = 0o744;
+let color: string = "blue";
+let list: number[] = [1, 2, 3];
+let x: [string, number] = ["hello", 10]; // tuples
+let notsure: any = 4;
+let u: undefined = undefined;
+let n: null = null;
 ```
 
-# Interfaces
-
-Named object types are interfaces.
+# Functions
 
 ```javascript
-interface Friend {  
-    name: string;  
-    favoriteColor?: string;  
+function add(x: number, y: number): number {
+    return x + y;
 }
 
-function add(friend: Friend) {  
-    var name = friend.name;  
+let mul: (x: number, y: number) => number =
+    function(x: number, y: number): number { return x * y; };
+```
+
+Optional parameters:
+
+```javascript
+function buildName(firstName: string, lastName?: string) {
+  if (lastName) {
+    return firstName + " " + lastName;
+  } else {
+    return firstName;
+  }
+}
+```
+
+# Classes
+
+```javascript
+interface ClockInterface {
+    currentTime: Date;
+    setTime(d: Date);
 }
 
-add({ name: "Fred" });  // Ok  
-add({ favoriteColor: "blue" });  // Error, name required  
-add({ name: "Jill", favoriteColor: "green" });  // Ok
+class Clock implements ClockInterface {
+    currentTime: Date;
+    setTime(d: Date) {
+        this.currentTime = d;
+    }
+    constructor(h: number, m: number) { }
+}
 ```
 
 # Classes
@@ -106,59 +139,23 @@ class BankAccount {
 }
 ```
 
-Shorthard for public:
-
-```javascript
-class BankAccount {  
-    constructor(public balance: number) {  
-    }  
-    deposit(credit: number) {  
-        this.balance += credit;  
-        return this.balance;  
-    }  
-}
-```
 
 # Generics
 
 ```javascript
-interface Array<T> {  
-    reverse(): T[];  
-    sort(compareFn?: (a: T, b: T) => number): T[];  
-    // ...   
+function identity<T>(arg: T): T {
+    return arg;
 }
 ```
 
+Generic classes:
 
 ```javascript
-map<U>(func: (value: T, index: number, array: T[]) => U, thisArg?: any): U[];
-```
-
-```javascript
-interface NamedItem {  
-    name: string;  
-}
-
-class List<T extends NamedItem> {  
-    next: List<T> = null;
-
-    constructor(public item: T) {  
-    }
-
-    insertAfter(item: T) {  
-        var temp = this.next;  
-        this.next = new List(item);  
-        this.next.next = temp;  
-    }
-
-    log() {  
-        console.log(this.item.name);  
-    }
-
-    // ...  
+class GenericNumber<T> {
+    zeroValue: T;
+    add: (x: T, y: T) => T;
 }
 ```
-
 
 # Related Work
 
