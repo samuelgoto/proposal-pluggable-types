@@ -1,47 +1,77 @@
 This is a [stage 0](https://tc39.github.io/process-document/) proposal to add a [pluggable type system](http://bracha.org/pluggableTypesPosition.pdf) to JavaScript.
 
-* Authors: @samuelgoto, @dimvar, @gbracha
-* Early reviewers: 
+A **pluggable** type system is a set of syntactical entrypoints that serve as type **annotations** (i.e. they have no observable semantics at runtime) that formally enable (i.e. without transpilation) optional type checking and inferencing to be defined and plugged-in from **userland** (e.g. typescript, flow and closure).
 
-A **pluggable** type system is a set of syntactical entrypoints that serve as type **annotations** (i.e. they have no observable semantics at runtime) that formally enable (i.e. without transpilation) optional type checking and inferencing to be plugged-in from **userland** (e.g. typescript, flow and closure).
-
-```typescript
-class BankAccount {  
-    balance: number;  
-    constructor(initially: number) {  
-        this.balance = initially;  
-    }  
-    deposit(credit: number) {  
-        this.balance += credit;  
-        return this.balance;  
-    }  
+```javascript
+function add(x: number, y: number): number {
+    return x + y;
 }
 ```
 
-Since pluggable type systems have no observable semantics at runtime (as opposed to [gradual](http://code.sgo.to/proposal-optional-types/FAQ.html#sound-gradual-typing) type systems), **all** of their benefits are materialized while writing code in code editors or reading code while debugging.
+This is, at runtime, roughly semantically equivalent to:
 
-In isolation, exclusively with the syntactical annotations (e.g. standard JavaScript), a pluggable type system enables in editors and debuggers (e.g. browsers):
+```javascript
+function add(x /*: number */, y /*: number */) /*: number */ {
+    return x + y;
+}
+```
 
-- code navigation
-- code autocompletion
+Since pluggable type systems have no observable semantics at runtime (as opposed to, say, [gradual](http://code.sgo.to/proposal-optional-types/FAQ.html#sound-gradual-typing) type systems), **all** of their benefits are **exclusively** materialized while writing code in code editors or reading code while debugging.
 
-![autocompletion](autocomplete.png)
+Pluggable type systems support:
 
-- structural type checking (todo(goto): sanity check with @dimvar?)
-- type checking for enums and primitives (todo(goto): sanity check with @dimvar?)
+1. vanilla javascript users
+1. syntax-based type system users (e.g. typescript and flow)
+1. comments-based type system users (e.g. closure)
+1. a stepping stone towards unification
+
+For users, in isolation, the basic syntax of a pluggable type system enables **code navigation** (e.g. ctrl-click jumps to definition) in code editors (e.g. developer tools in browsers).
+
+![](https://code.visualstudio.com/assets/docs/editor/editingevolved/ctrlhover.png)
+
+For **syntax-based** type system users (e.g. typescript and flow), it empowers them enabling browsers/node (which takes vanilla javascript) to take typed code directly (i.e. without transpilation) and plug them in with developer tools (e.g. through a [language server protocol](https://github.com/Microsoft/language-server-protocol)).
 
 ![type checking](browser.png)
 
+For [@comments-based](http://usejsdoc.org/) type systems user's (e.g. closure compiler, which, by design, wants to be strictly under the standard grammar), it enables them to move to natively supported syntax, improving ergonomics while still maintaining backwards compatibility with the existing type system. For example:
 
-In collaboration with userland type systems, a pluggable type system enables:
+```javascript
+/**
+ * A shape.
+ * @interface
+ */
+function Shape() {};
+Shape.prototype.draw = function() {};
 
-- innovation of type systems to happen in userland
-- unification of syntax between type systems
-- a **stepping stone** towards a unified optional type system ([example](http://code.sgo.to/proposal-optional-types/))
+/**
+ * @constructor
+ * @implements {Shape}
+ */
+function Square() {};
+Square.prototype.draw = function() {
+  ...
+};
+```
 
-Importantly, pluggable type systems are a normative formalization of current practices (typescript and flow).
+Could, with the proposed pluggable extension points, be written as:
 
-The main drawback with pluggable type systems it that they corner ourselves from gradual typing. We believe there is substantial evidence in the industry and academia that types can't incur in significant performance benefits.
+```javascript
+interface Shape {
+  draw();
+}
+
+class Square implements Shape {
+  ...
+}
+```
+
+For TC39, pluggable type systems enable:
+
+1. the delegation of the development/innovation of a type system to userland
+1. the formalization of current norm
+1. a stepping stone on the path towards finding unification ([example](http://code.sgo.to/proposal-optional-types/))
+
+Having said that, the main **drawback** with pluggable type systems for TC39 it that they corner ourselves from gradual typing. We believe there is substantial evidence in the industry and academia that types can't incur in significant performance benefits.
 
 # Syntax
 
