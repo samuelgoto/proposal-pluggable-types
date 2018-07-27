@@ -57,7 +57,7 @@ class Square implements Shape {
 For TC39, pluggable type systems enable:
 
 1. the delegation of the development/innovation of a type system to userland
-1. the formalization of current norm
+1. the formalization of current norm (e.g. officializes typescript/flow as type system plugins rather than incompatible languages)
 1. a stepping stone on the path towards finding unification ([example](http://code.sgo.to/proposal-optional-types/))
 
 Having said that, the main **drawback** with pluggable type systems for TC39 it that they corner ourselves from gradual typing. We believe there is substantial evidence in the industry and academia that types can't incur in significant performance benefits.
