@@ -1,10 +1,7 @@
-# proposal-pluggable-types
-
+This is a [stage 0](https://tc39.github.io/process-document/) proposal to add [pluggable type systems](http://bracha.org/pluggableTypesPosition.pdf) to JavaScript.
 
 * Authors: @samuelgoto, @dimvar, @gbracha
 * Early reviewers: 
-
-This is a [stage 0](https://tc39.github.io/process-document/) proposal to add [pluggable type systems](http://bracha.org/pluggableTypesPosition.pdf) to JavaScript.
 
 A pluggable type system is a set of syntactical extensions that serve as type annotations (i.e. they have no observable semantics at runtime) that enable optional type checking and inferencing to be defined in userland.
 
