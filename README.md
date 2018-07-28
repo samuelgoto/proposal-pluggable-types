@@ -160,5 +160,6 @@ class GenericNumber<T> {
 
 # Related Work
 
-* Python's pluggable type system
+* [Other languages](http://code.sgo.to/proposal-optional-types/FAQ.html#other-languages)
+* [TC39 discussions](http://code.sgo.to/proposal-optional-types/FAQ.html#tc39-discussions)
 * [An Optional Type System for JS](http://code.sgo.to/proposal-optional-types/)
