@@ -1,6 +1,6 @@
 This is a [stage 0](https://tc39.github.io/process-document/) proposal to add a [pluggable type system](http://bracha.org/pluggableTypesPosition.pdf) to JavaScript.
 
-A **pluggable** type system is a set of [syntactical constructs](#strawman-proposal) that serve as type **annotations** that formally bind them to an **optional type checker** (i.e. no assertions made at runtime) defined in  **userland** (e.g. typescript, flow and closure).
+A **pluggable** type system is a set of [syntactical constructs](#syntax) that serve as type **annotations** that formally bind them to an **optional type checker** (i.e. no assertions made at runtime) defined in  **userland** (e.g. typescript, flow and closure).
 
 For example:
 
@@ -18,7 +18,7 @@ function add(x /*: number */, y /*: number */) /*: number */ {
 }
 ```
 
-You **bind** a type system plugin to code by using a **to-be-determined-at-stage-2** convention.
+You [**bind**](#binding) a type system plugin to code by using a **to-be-determined-at-stage-2** convention.
 
 Some potential examples of conventions are [```// @flow```](https://flow.org/en/docs/usage/#toc-prepare-your-code-for-flow) comment annotations or file extensions (e.g. [```.flow```](https://github.com/facebook/flow/issues/1996#issuecomment-230919868) or ```.ts```) or ```"use pragmas"```.
 
@@ -81,7 +81,7 @@ We believe, however, that there is significant evidence in the research literatu
 
 In this proposal, we describe syntactical extensions that enables type plugins to define semantics. At runtime, every extension below is semantically sequivalent to wrapping them in ```/* */``` comments.
 
-# Binding
+## Binding
 
 We believe it is important to make an association between the syntax and the type checking semantics to be performed. Currently, to the best of our knowledge, each type system has their own convention:
 
@@ -101,7 +101,11 @@ For example:
  */
 ```
 
-# Variables
+## Syntax
+
+In addition to the binding mechanism, we propose syntactical extensions for type annotations.
+
+### Variables
 
 ```javascript
 let isDone: boolean = false;
@@ -117,7 +121,7 @@ let u: undefined = undefined;
 let n: null = null;
 ```
 
-# Functions
+### Functions
 
 ```javascript
 function add(x: number, y: number): number {
@@ -144,7 +148,7 @@ function buildName(firstName: string, lastName?: string) {
 }
 ```
 
-# Classes
+### Classes
 
 ```javascript
 class BankAccount {  
@@ -159,7 +163,7 @@ class BankAccount {
 }
 ```
 
-# Interfaces
+### Interfaces
 
 ```javascript
 interface Timer {
@@ -172,7 +176,7 @@ class Clock implements Timer {
 }
 ```
 
-# Generics
+### Generics
 
 ```javascript
 interface Array<T> {  
