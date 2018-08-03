@@ -28,18 +28,16 @@ Some potential examples of conventions are [```// @flow```](https://flow.org/en/
 
 # Motivation
 
-Pluggable type systems have no type checking/enforcement at runtime (as opposed to, say, [gradual](http://code.sgo.to/proposal-optional-types/FAQ.html#sound-gradual-typing) type systems). Their benefits are **mostly**\* materialized while writing/reading code.
+Pluggable type systems have no type checking/enforcement at runtime (as opposed to, say, [gradual](http://code.sgo.to/proposal-optional-types/FAQ.html#sound-gradual-typing) type systems). Their benefits are mostly materialized while writing/reading code.
 
-\* e.g. a future run-time type reflection API isn't necessarily conflicting with this formulation of pluggable types.
-
-Pluggable type systems support:
+Pluggable type systems empowers:
 
 1. typescript/flow users
 1. closure users
 1. vanilla javascript users
 1. TC39
 
-For **syntax-based** type system users (e.g. typescript and flow), it empowers them by making them part of a supported/compatible/standard language extension (type system plugins), enabling browsers/node (which takes vanilla javascript) to take typed code directly (i.e. without transpilation) and plug them in with developer tools (e.g. through a [language server protocol](https://github.com/Microsoft/language-server-protocol)).
+For **syntax-based** type system users (e.g. typescript and flow), it empowers them by making them part of a supported/compatible/standard language extension (type system plugins). It enables browsers/node (which takes vanilla javascript) to take typed code natively and plug them in with developer tools (e.g. through a [language server protocol](https://github.com/Microsoft/language-server-protocol)).
 
 ![type checking](browser.png)
 
@@ -70,9 +68,9 @@ For users, in isolation, the basic syntax of a pluggable type systems enables **
 
 For TC39, pluggable type systems enable:
 
-1. the autonomy to steer **convergence** on syntax of type systems at TC39 
+1. the ability to steer **convergence** on syntax of type systems for JS 
 1. the **delegation** of the development/innovation of type **semantics** to userland
-1. the formalization of **current norm** (e.g. officializes typescript/flow as type system plugins rather than incompatible languages)
+1. the formalization of **current norm**
 1. a **stepping stone** on the path towards finding a unified [optional type system](http://code.sgo.to/proposal-optional-types/)
 
 Having said that, the main **drawback** with pluggable type systems for TC39 it that they corner ourselves from **gradual typing** (i.e. once introduced without runtime type checking, they can't add them afterwards without introducing extra syntax).
@@ -84,6 +82,16 @@ We believe, however, that there is significant evidence in the research literatu
 In this proposal, we describe syntactical extensions that enables type plugins to define semantics. At runtime, every extension below is semantically sequivalent to wrapping them in ```/* */``` comments.
 
 # Binding
+
+We believe it is important to make an association between the syntax and the type checking semantics to be performed. Currently, to the best of our knowledge, each type system has their own convention:
+
+* typescript uses ```*.ts``` file extensions.
+* flow uses ```// @flow``` source annotation.
+* closure uses ```jsdocs``` annotations.
+
+As a strawman proposal, a starting point is to use a reserved jsdoc annotation (e.g. ```@types```) pointing to a URL (along the lines of xml namespaces) which is responsible to define how types should be interpreted.
+
+For example:
 
 ```javascript
 /**
