@@ -1,6 +1,8 @@
 This is a [stage 0](https://tc39.github.io/process-document/) proposal to add a [pluggable type system](http://bracha.org/pluggableTypesPosition.pdf) to JavaScript.
 
-A **pluggable** type system is a set of syntactical entrypoints that serve as type **annotations** (i.e. they have no observable semantics at runtime) that formally enable (i.e. without transpilation) optional type checking and inferencing to be defined and plugged-in from **userland** (e.g. typescript, flow and closure).
+A **pluggable** type system is a set of [syntactical constructs](#strawman-proposal) that serve as type **annotations** that formally bind them to an **optional type checker** (i.e. no assertions made at runtime) defined in  **userland** (e.g. typescript, flow and closure).
+
+For example:
 
 ```javascript
 function add(x: number, y: number): number {
@@ -16,21 +18,15 @@ function add(x /*: number */, y /*: number */) /*: number */ {
 }
 ```
 
-You **bind** a type system plugin to code by using a **to-be-determined-at-stage-2** convention. Current examples are [```// @flow```](https://flow.org/en/docs/usage/#toc-prepare-your-code-for-flow) comment annotations or file extensions (e.g. [```.flow```](https://github.com/facebook/flow/issues/1996#issuecomment-230919868) or ```.ts```).
+You **bind** a type system plugin to code by using a **to-be-determined-at-stage-2** convention.
+
+Some potential examples of conventions are [```// @flow```](https://flow.org/en/docs/usage/#toc-prepare-your-code-for-flow) comment annotations or file extensions (e.g. [```.flow```](https://github.com/facebook/flow/issues/1996#issuecomment-230919868) or ```.ts```) or ```"use pragmas"```.
 
 ```javascript
 // @flow
 ```
 
-Or possibly a new ```jsdoc``` reserved tag pointing to an opaque URL:
-
-```javascript
-/**
- * This class abstracts X, Y and Z.
- *
- * @types https://www.typescriptlang.org/
- */
-```
+# Motivation
 
 Pluggable type systems have no type checking/enforcement at runtime (as opposed to, say, [gradual](http://code.sgo.to/proposal-optional-types/FAQ.html#sound-gradual-typing) type systems). Their benefits are **mostly**\* materialized while writing/reading code.
 
@@ -83,9 +79,19 @@ Having said that, the main **drawback** with pluggable type systems for TC39 it 
 
 We believe, however, that there is significant evidence in the research literature that gradual typing incurs a significant performance penalty, which makes it impractical. In addition, TypeScript, Flow, and Closure Compiler have demonstrated that optional typing works well for JS at scale.
 
-# Syntax
+# Strawman proposal
 
 In this proposal, we describe syntactical extensions that enables type plugins to define semantics. At runtime, every extension below is semantically sequivalent to wrapping them in ```/* */``` comments.
+
+# Binding
+
+```javascript
+/**
+ * This class abstracts X, Y and Z.
+ *
+ * @types https://www.typescriptlang.org/
+ */
+```
 
 # Variables
 
