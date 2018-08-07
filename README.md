@@ -1,8 +1,6 @@
 This is a [stage 0](https://tc39.github.io/process-document/) proposal to add a [pluggable type system](http://bracha.org/pluggableTypesPosition.pdf) to JavaScript.
 
-A **pluggable** type system is a set of [syntactical constructs](#syntax) that serve as type **annotations** that formally bind them to an **optional type checker** (i.e. no assertions made at runtime) defined in  **userland** (e.g. typescript, flow and closure).
-
-For example:
+A **pluggable** type system is a set of [syntactical constructs](#syntax) that serve as type **annotations** that formally bind them to an **optional type checker** (i.e. no assertions made at runtime) defined in  **userland** (e.g. typescript, flow and closure). For example:
 
 ```javascript
 function add(x: number, y: number): number {
@@ -18,12 +16,10 @@ function add(x /*: number */, y /*: number */) /*: number */ {
 }
 ```
 
-You [**bind**](#binding) a type system plugin to code by using a **to-be-determined-at-stage-2** convention.
-
-Some potential examples of conventions are [```// @flow```](https://flow.org/en/docs/usage/#toc-prepare-your-code-for-flow) comment annotations or file extensions (e.g. [```.flow```](https://github.com/facebook/flow/issues/1996#issuecomment-230919868) or ```.ts```) or ```"use pragmas"```.
+You bind a type system plugin to code by using a **to-be-determined-at-stage-2** convention ([alternatives](#binding)), for example:
 
 ```javascript
-// @flow
+// @types https://www.typescriptlang.org/
 ```
 
 # Motivation
@@ -85,11 +81,17 @@ In this proposal, we describe syntactical extensions that enables type plugins t
 
 We believe it is important to make an association between the syntax and the type checking semantics to be performed. Currently, to the best of our knowledge, each type system has their own convention:
 
-* typescript uses ```*.ts``` file extensions.
-* flow uses ```// @flow``` source annotation.
-* closure uses ```jsdocs``` annotations.
+* file extensions (e.g. [```.flow```](https://github.com/facebook/flow/issues/1996#issuecomment-230919868) or ```.ts```).
+* reserved ```// @``` comment annotations (e.g. [```// @flow```](https://flow.org/en/docs/usage/#toc-prepare-your-code-for-flow) source annotation).
+* ```jsdocs``` annotations.
+* ```"use pragmas"``` pragmas.
 
-As a strawman proposal, a starting point is to use a reserved jsdoc annotation (e.g. ```@types```) pointing to a URL (along the lines of xml namespaces) which is responsible to define how types should be interpreted.
+We should take these (and more) into consideration:
+
+* does it require TC39 to enumerate/register type systems or can it be self-service?
+* does the binding happen in the source code or out of band (e.g. compilation flag, file extensions, etc)?
+
+As a starting point, consider a reserved jsdoc annotation (e.g. ```@types```) pointing to a URL (along the lines of xml namespaces) which is responsible to define how types should be interpreted.
 
 For example:
 
