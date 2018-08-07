@@ -11,7 +11,7 @@ function add(x: number, y: number): number {
 }
 ```
 
-Is equivalent to:
+At runtime, this is equivalent to:
 
 ```javascript
 function add(x /*: number */, y /*: number */) /*: number */ {
