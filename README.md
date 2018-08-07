@@ -3,6 +3,9 @@ This is a [stage 0](https://tc39.github.io/process-document/) proposal to add a 
 A **pluggable** type system is a set of [syntactical constructs](#syntax) that serve as type **annotations** that formally bind them to an **optional type checker** (i.e. no assertions made at runtime) defined in  **userland** (e.g. typescript, flow and closure). For example:
 
 ```javascript
+/* 
+ * @types https://www.typescriptlang.org/
+ */
 function add(x: number, y: number): number {
     return x + y;
 }
@@ -16,58 +19,56 @@ function add(x /*: number */, y /*: number */) /*: number */ {
 }
 ```
 
-You bind a type system plugin to code by using a **to-be-determined-at-stage-2** convention ([alternatives](#binding)), for example:
-
-```javascript
-// @types https://www.typescriptlang.org/
-```
+You bind a type system plugin to code by using a **to-be-determined-at-stage-2** convention ([alternatives](#binding)).
 
 # Motivation
 
-Pluggable type systems have no type checking/enforcement at runtime (as opposed to, say, [gradual](http://code.sgo.to/proposal-optional-types/FAQ.html#sound-gradual-typing) type systems). Their benefits are mostly materialized while writing/reading code.
+In the last 10 years, large engineering teams have developed type systems for JavaScript through a variety of preprocessors, transpilers and code editors to scale large codebases.
 
-Pluggable type systems empowers:
+Most notably, [TypeScript](https://www.typescriptlang.org/), [Flow](http://flowtype.org/) and the [Closure](https://github.com/google/closure-compiler/wiki/Annotating-JavaScript-for-the-Closure-Compiler) have gained a massive amount of adoption and are used as the foundation and starting point of this proposal.
 
-1. typescript/flow users
-1. closure users
-1. vanilla javascript users
-1. TC39
+Unfortunately, the javascript syntax isn't expressive enough to enable an effective type checker, so it was extended beyond the **standard** language.
 
-For **syntax-based** type system users (e.g. typescript and flow), it empowers them by making them part of a supported/compatible/standard language extension (type system plugins). It enables browsers/node (which takes vanilla javascript) to take typed code natively and plug them in with developer tools (e.g. through a [language server protocol](https://github.com/Microsoft/language-server-protocol)).
+This proposal tries to bridge the gap between the **standard** javascript language and the massive benefits of type checkers, making them more accessible to users that want to remain within the boundaries of the **standard** javascript language, while still nurturing the innovation and development of independent type systems.
 
-![type checking](browser.png)
-
-For [@comments-based](http://usejsdoc.org/) type systems user's (e.g. closure compiler, which, by design, wants to be strictly under the standard grammar), it enables them to move to natively supported syntax, improving ergonomics while still maintaining **backwards compatibility** with their existing type system. For example:
+It accomplishes this by introducing a **pluggable** type system for JS composed of (a) syntax extensions and (b) a binding mechanism that enables (existing) type checkers to operate during code development according to the semantics that were bound.
 
 ```javascript
 /**
- * @constructor
- * @implements {Shape}
+ * A Shape represents objects that can ...
+ *
+ * @types http://flowtype.org/
  */
-function Square() {};
-Square.prototype.draw = function() {
-  ...
-};
-```
-
-Which, with the syntax extensions, enables them to be written as:
-
-```javascript
-class Square implements Shape {
+interface Shape {
   ...
 }
 ```
 
-For users, in isolation, the basic syntax of a pluggable type systems enables **code navigation** (e.g. ctrl-click jumps to definition) in code editors (e.g. developer tools in browsers).
+At runtime, the syntax extensions are **not** used for type checking by interpreters.
 
-![](https://code.visualstudio.com/assets/docs/editor/editingevolved/ctrlhover.png)
+```javascript
+/**
+ * An Account represents the user's ...
+ *
+ * @types https://developers.google.com/closure
+ */
+class Account {  
+  constructor(initially: number) {  
+    this.balance = initially;  
+  }  
+  deposit(credit: number) : number {  
+    this.balance += credit;  
+    return this.balance;  
+  }  
+}
+```
 
-For TC39, pluggable type systems enable:
 
-1. the ability to steer **convergence** on syntax of type systems for JS 
-1. the **delegation** of the development/innovation of type **semantics** to userland
-1. the formalization of **current norm**
-1. a **stepping stone** on the path towards finding a unified [optional type system](http://code.sgo.to/proposal-optional-types/)
+Pluggable type systems enable the **standard** javascript language to:
+
+1. **delegate** the development/innovation of type **semantics** to userland, formalizing **current norms**
+1. steer **convergence** on syntax of type systems for JS 
+1. place a **stepping stone** on a possible path towards finding a unified [optional type system](http://code.sgo.to/proposal-optional-types/)
 
 Having said that, the main **drawback** with pluggable type systems for TC39 it that they corner ourselves from **gradual typing** (i.e. once introduced without runtime type checking, they can't add them afterwards without introducing extra syntax).
 
