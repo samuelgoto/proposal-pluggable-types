@@ -35,6 +35,8 @@ acorn.plugins.types = function(parser) {
       node.label = tt.boolean.label;
      } else if (this.eat(tt.string)) {
       node.label = tt.string.label;
+     } else if (this.eat(tt.object)) {
+      node.label = tt.object.label;
      } else if (this.eat(tt.any)) {
       node.label = tt.any.label;
      } else if (this.eat(tt.void)) {
@@ -90,19 +92,35 @@ function parse(code) {
  return ast;
 }
 
-function transpile(ast) {
+// https://github.com/google/closure-compiler/wiki/Annotating-JavaScript-for-the-Closure-Compiler#type-expressions
+function transpile(code) {
+ let ast = parse(code);
+
  walk.simple(ast, {
    VariableDeclaration(declaration) {
     if (declaration.declarations &&
         declaration.declarations[0].types) {
      let type = declaration.declarations[0].types;
+     declaration.leadingComments = 
+      declaration.leadingComments || [];
+     let label = type.label;
+     if (label == "any") {
+      label = "*";
+     } else if (label == "object") {
+      label = "Object";
+     } else if (label == "void") {
+      throw new Error("closure doesn't have void");
+     }
      declaration.leadingComments.push({
        type: "Block",
-       value: `* @type {${type.label}} *`
+       value: `* @type {${label}} *`
       });
     }
    }
   });
+
+ let result = escodegen.generate(ast, {comment: true});
+ return result;
 }
 
 describe("Parser", function() {
@@ -129,17 +147,38 @@ var x = 42;
     parse("var x: any = 'hi';");
     parse("var x: undefined;");
     parse("var x: null;");
+    parse("var x: object = {};");
+  });
+
+  it("Transpiling primitives", function() {
+    assertThat(transpile("var x: number = 42;"))
+     .equalsTo("/** @type {number} **/\nvar x = 42;");
+    assertThat(transpile("var x: boolean = true;"))
+     .equalsTo("/** @type {boolean} **/\nvar x = true;");
+    assertThat(transpile("var x: string = 'hello';"))
+     .equalsTo("/** @type {string} **/\nvar x = 'hello';");
+    assertThat(transpile("var x: any = 'hi';"))
+     .equalsTo("/** @type {*} **/\nvar x = 'hi';");
+    assertThat(transpile("var x: object = {};"))
+     .equalsTo("/** @type {Object} **/\nvar x = {};");
+    assertThat(transpile("var x: undefined;"))
+     .equalsTo("/** @type {undefined} **/\nvar x;");
+    assertThat(transpile("var x: null;"))
+     .equalsTo("/** @type {null} **/\nvar x;");
+
+    try {
+     transpile("var x: void;");
+     fail("void isn't represented in closure");
+    } catch (e) {
+    }
   });
 
   it("Parsing comments", function() {
-    let ast = parse(`
-      /** hello world **/
-      var x: number = 42;
-    `);
+    let result = transpile(`
+/** hello world **/
+var x: number = 42;
+`);
 
-    transpile(ast);
-
-    let result = escodegen.generate(ast, {comment: true});
     assertThat(result).equalsTo(`
 /** hello world **/
 /** @type {number} **/
