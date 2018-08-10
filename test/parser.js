@@ -83,6 +83,26 @@ acorn.plugins.types = function(parser) {
    }
   });
 
+ parser.extend("parseFunctionParams", function(nextMethod) {
+   return function(node) {
+    // NOTE(goto): this is a major hack, we should probably override
+    // parseFunction, but that's really long, so, overriding
+    // parseFunctionParams that happens just before parseFunctionBody
+    // even if the : return type declaration are technically outside
+    // of the function parameter list. oh well.
+    this.expect(tt.parenL);
+    node.params = this.parseBindingList(tt.parenR, false, this.options.ecmaVersion >= 8);
+    this.checkYieldAwaitInDefaultParams();
+    let type = parseType.call(this);
+    if (type) {
+     // console.log("hello");
+     // console.log(type);
+     node.returns = type;
+    }
+     // return nextMethod.call(this, node);
+   };
+  });
+
  parser.extend("readWord", function(nextMethod) {
    return function(code) {
     let word = this.readWord1();
@@ -129,13 +149,18 @@ function transpile(code) {
      });
 
     let block = ["*"];
+
     for (let {name, label} of labels) {
      block.push(` * @param {${label}} ${name}`);
     }
-    block.push(" ");
-    // console.log(block.join("\n"));
+    
+    if (declaration.returns) {
+     block.push(` * @return {${declaration.returns.label}}`);
+    }
 
-    // let type = declaration.declarations[0].types;
+    block.push(" ");
+
+
     declaration.leadingComments = 
      declaration.leadingComments || [];
     declaration.leadingComments.push({
@@ -241,7 +266,7 @@ var x = 42;
     parse("function add(a: any, b: void) {}");
   });
 
-  it("Parsing params in function declarations", function() {
+  it("Transpiling params in function declarations", function() {
     assertThat(transpile("function add(a: number, b: string) {}"))
      .equalsTo(`
 /**
@@ -253,6 +278,20 @@ function add(a, b) {
 `);
   });
 
+  it("Parsing return types in function declarations", function() {
+    parse("function add(): number {}");
+  });
+
+  it("Transpiling returns in function declarations", function() {
+    assertThat(transpile("function add(): number {}"))
+     .equalsTo(`
+/**
+ * @return {number}
+ */
+function add() {
+}
+`);
+  });
 
   function assertThat(x) {
    return {
