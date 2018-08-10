@@ -5,7 +5,19 @@ const tt = acorn.tokTypes;
 const {TokenType, keywordTypes} = acorn;
 const escodegen = require("escodegen");
 
-tt.number = keywordTypes.number = new TokenType("number", {keyword: "number"});
+const reserved = {};
+const reserve = (token) => {
+ reserved[token] = tt[token] = keywordTypes[token] = new TokenType(token, {keyword: token});
+};
+
+reserve("number");
+reserve("boolean");
+reserve("string");
+reserve("any");
+reserve("void");
+reserve("object");
+reserve("undefined");
+reserve("null");
 
 acorn.plugins.types = function(parser) {
  parser.extend("parseVarId", function(nextMethod) {
@@ -16,13 +28,26 @@ acorn.plugins.types = function(parser) {
      // because @jsdocs can't refer to multiple variables,
      // at least as far as I'm aware of.
 
-     if (!this.eat(tt.number)) {
+     let node = this.startNode();
+     if (this.eat(tt.number)) {
+      node.label = tt.number.label;
+     } else if (this.eat(tt.boolean)) {
+      node.label = tt.boolean.label;
+     } else if (this.eat(tt.string)) {
+      node.label = tt.string.label;
+     } else if (this.eat(tt.any)) {
+      node.label = tt.any.label;
+     } else if (this.eat(tt.void)) {
+      node.label = tt.void.label;
+     } else if (this.eat(tt.null)) {
+      node.label = tt.null.label;
+     } else if (this.eat(tt.undefined)) {
+      node.label = tt.undefined.label;
+     } else {
       this.raise(this.pos, "Expected a type declaration");
       return;
      }
 
-     let node = this.startNode();
-     node.label = tt.number.label;
      decl.types = this.finishNode(node, "TypeDeclaration");
     }
         
@@ -34,9 +59,7 @@ acorn.plugins.types = function(parser) {
    return function(code) {
     let word = this.readWord1();
     let type = tt.name;
-    // console.log(word);
-    if (this.keywords.test(word) ||
-        word == "number") {
+    if (this.keywords.test(word) || reserved[word]) {
      if (this.containsEsc) {
       this.raiseRecoverable(this.start, "Escape sequence in keyword " + word);
      }
@@ -96,6 +119,16 @@ describe("Parser", function() {
 // hello world
 var x = 42; 
     `);
+  });
+
+  it("Parsing primitives", function() {
+    parse("var x: number = 42;");
+    parse("var x: boolean = true;");
+    parse("var x: string = 'hello';");
+    parse("var x: void;");
+    parse("var x: any = 'hi';");
+    parse("var x: undefined;");
+    parse("var x: null;");
   });
 
   it("Parsing comments", function() {
