@@ -1,5 +1,6 @@
 const Assert = require("assert");
 const acorn = require("acorn");
+const walk = require("acorn/dist/walk")
 const tt = acorn.tokTypes;
 const {TokenType, keywordTypes} = acorn;
 const escodegen = require("escodegen");
@@ -11,6 +12,10 @@ acorn.plugins.types = function(parser) {
    return function(decl, kind) {
     decl.id = this.parseBindingAtom(kind);
     if (this.eat(tt.colon)) {
+     // TODO(goto): disallow type declarations in variable lists.
+     // because @jsdocs can't refer to multiple variables,
+     // at least as far as I'm aware of.
+
      if (!this.eat(tt.number)) {
       this.raise(this.pos, "Expected a type declaration");
       return;
@@ -58,7 +63,23 @@ function parse(code) {
 
  // attach comments using collected information
  escodegen.attachComments(ast, comments, tokens);
+
  return ast;
+}
+
+function transpile(ast) {
+ walk.simple(ast, {
+   VariableDeclaration(declaration) {
+    if (declaration.declarations &&
+        declaration.declarations[0].types) {
+     let type = declaration.declarations[0].types;
+     declaration.leadingComments.push({
+       type: "Block",
+       value: `* @type {${type.label}} *`
+      });
+    }
+   }
+  });
 }
 
 describe("Parser", function() {
@@ -74,6 +95,22 @@ describe("Parser", function() {
     assertThat(result).equalsTo(`
 // hello world
 var x = 42; 
+    `);
+  });
+
+  it("Parsing comments", function() {
+    let ast = parse(`
+      /** hello world **/
+      var x: number = 42;
+    `);
+
+    transpile(ast);
+
+    let result = escodegen.generate(ast, {comment: true});
+    assertThat(result).equalsTo(`
+/** hello world **/
+/** @type {number} **/
+var x = 42;
     `);
   });
 
