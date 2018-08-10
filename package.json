@@ -19,6 +19,7 @@
     "acorn-es7-plugin": "^1.1.7",
     "astring": "^1.0.3",
     "commander": "^2.11.0",
+    "escodegen": "^1.11.0",
     "falafel": "^2.1.0"
   },
   "devDependencies": {

@@ -2,6 +2,7 @@ const Assert = require("assert");
 const acorn = require("acorn");
 const tt = acorn.tokTypes;
 const {TokenType, keywordTypes} = acorn;
+const escodegen = require("escodegen");
 
 tt.number = keywordTypes.number = new TokenType("number", {keyword: "number"});
 
@@ -53,18 +54,48 @@ describe("Parser", function() {
 
     // debugger;
 
-    var ast = acorn.parse('var x: number = 42; // answer', {
-      plugins: {types: true}
+    var comments = [];
+    let tokens = [];
+
+    let code = `
+// hello world
+var x: number = 42;
+    `;
+    
+    var ast = acorn.parse(code, {
+      plugins: {types: true},
       // collect ranges for each node
-      // ranges: true,
+      ranges: true,
       // collect comments in Esprima's format
-      // onComment: comments,
+      onComment: comments,
       // collect token ranges
-      // onToken: tokens
+      onToken: tokens
      });
 
-    console.log(JSON.stringify(ast, undefined, 2));
+    // console.log(comments);
 
+    // attach comments using collected information
+    escodegen.attachComments(ast, comments, tokens);
+
+    // generate code
+    let result = escodegen.generate(ast, {comment: true});
+
+    // console.log(Assert);
+
+    assertThat(result).equalsTo(`
+// hello world
+var x = 42; 
+    `);
+
+    // console.log(JSON.stringify(ast, undefined, 2));
   });
+
+  function assertThat(x) {
+   return {
+    equalsTo(y) {
+     Assert.equal(x.trim(), y.trim());
+    }
+   }
+  }
  });
 
