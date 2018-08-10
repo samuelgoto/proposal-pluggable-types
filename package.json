@@ -1,7 +1,8 @@
 {
   "name": "proposal-pluggable-types",
   "scripts": {
-    "test": "mocha -w"
+    "test": "mocha -w",
+    "debug": "google-chrome http://127.0.0.1:8080/debug?port=5858 2> /dev/null & mocha --inspect --inspect-brk"
   },
   "repository": {
     "type": "git",
