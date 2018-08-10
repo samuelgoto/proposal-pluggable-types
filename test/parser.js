@@ -20,41 +20,67 @@ reserve("undefined");
 reserve("null");
 
 acorn.plugins.types = function(parser) {
+ function parseType() {
+    if (!this.eat(tt.colon)) {
+     return;
+    }
+    // TODO(goto): disallow type declarations in variable lists.
+    // because @jsdocs can't refer to multiple variables,
+    // at least as far as I'm aware of.
+
+    let node = this.startNode();
+    if (this.eat(tt.number)) {
+     node.label = tt.number.label;
+    } else if (this.eat(tt.boolean)) {
+     node.label = tt.boolean.label;
+    } else if (this.eat(tt.string)) {
+     node.label = tt.string.label;
+    } else if (this.eat(tt.object)) {
+     node.label = tt.object.label;
+    } else if (this.eat(tt.any)) {
+     node.label = tt.any.label;
+    } else if (this.eat(tt.void)) {
+     node.label = tt.void.label;
+    } else if (this.eat(tt.null)) {
+     node.label = tt.null.label;
+    } else if (this.eat(tt.undefined)) {
+     node.label = tt.undefined.label;
+    } else {
+     this.raise(this.pos, "Expected a type declaration");
+     return;
+    }
+
+    return this.finishNode(node, "TypeDeclaration");
+ }
+
  parser.extend("parseVarId", function(nextMethod) {
    return function(decl, kind) {
     decl.id = this.parseBindingAtom(kind);
-    if (this.eat(tt.colon)) {
-     // TODO(goto): disallow type declarations in variable lists.
-     // because @jsdocs can't refer to multiple variables,
-     // at least as far as I'm aware of.
-
-     let node = this.startNode();
-     if (this.eat(tt.number)) {
-      node.label = tt.number.label;
-     } else if (this.eat(tt.boolean)) {
-      node.label = tt.boolean.label;
-     } else if (this.eat(tt.string)) {
-      node.label = tt.string.label;
-     } else if (this.eat(tt.object)) {
-      node.label = tt.object.label;
-     } else if (this.eat(tt.any)) {
-      node.label = tt.any.label;
-     } else if (this.eat(tt.void)) {
-      node.label = tt.void.label;
-     } else if (this.eat(tt.null)) {
-      node.label = tt.null.label;
-     } else if (this.eat(tt.undefined)) {
-      node.label = tt.undefined.label;
-     } else {
-      this.raise(this.pos, "Expected a type declaration");
-      return;
-     }
-
-     decl.types = this.finishNode(node, "TypeDeclaration");
+    let type = parseType.call(this, decl);
+    if (type) {
+     decl.types = type;
     }
-        
     this.checkLVal(decl.id, kind, false)
    };
+  });
+
+ parser.extend("parseBindingList", function(nextMethod) {
+   return function(close, allowEmpty, allowTrailingComma) {
+    // console.log(close);
+    return nextMethod.call(this, close, allowEmpty, allowTrailingComma);
+   };
+  });
+
+ parser.extend("parseBindingListItem", function(nextMethod) {
+   return function(param) {
+    let type = parseType.call(this);
+    if (type) {
+     // console.log(type);
+     param.types = type;
+    }
+    return param;
+    // return nextMethod.call(this, param);
+   }
   });
 
  parser.extend("readWord", function(nextMethod) {
@@ -97,6 +123,26 @@ function transpile(code) {
  let ast = parse(code);
 
  walk.simple(ast, {
+   FunctionDeclaration(declaration) {
+    let labels = declaration.params.map(({name, types}) => { 
+      return {name: name, label: types.label};
+     });
+
+    let block = ["*"];
+    for (let {name, label} of labels) {
+     block.push(` * @param {${label}} ${name}`);
+    }
+    block.push(" ");
+    // console.log(block.join("\n"));
+
+    // let type = declaration.declarations[0].types;
+    declaration.leadingComments = 
+     declaration.leadingComments || [];
+    declaration.leadingComments.push({
+      type: "Block",
+      value: block.join("\n")
+    });
+   },
    VariableDeclaration(declaration) {
     if (declaration.declarations &&
         declaration.declarations[0].types) {
@@ -113,7 +159,7 @@ function transpile(code) {
      }
      declaration.leadingComments.push({
        type: "Block",
-       value: `* @type {${label}} *`
+       value: `*\n * @type {${label}}\n `
       });
     }
    }
@@ -124,7 +170,7 @@ function transpile(code) {
 }
 
 describe("Parser", function() {
-  it("Parsing basic", function() {
+  it("Parsing variable declarations", function() {
     let ast = parse(`
       // hello world
       var x: number = 42;
@@ -139,7 +185,7 @@ var x = 42;
     `);
   });
 
-  it("Parsing primitives", function() {
+  it("Parsing primitives in variable declarations", function() {
     parse("var x: number = 42;");
     parse("var x: boolean = true;");
     parse("var x: string = 'hello';");
@@ -150,21 +196,21 @@ var x = 42;
     parse("var x: object = {};");
   });
 
-  it("Transpiling primitives", function() {
+  it("Transpiling primitives in variable declarations", function() {
     assertThat(transpile("var x: number = 42;"))
-     .equalsTo("/** @type {number} **/\nvar x = 42;");
+     .equalsTo("/**\n * @type {number}\n */\nvar x = 42;");
     assertThat(transpile("var x: boolean = true;"))
-     .equalsTo("/** @type {boolean} **/\nvar x = true;");
+     .equalsTo("/**\n * @type {boolean}\n */\nvar x = true;");
     assertThat(transpile("var x: string = 'hello';"))
-     .equalsTo("/** @type {string} **/\nvar x = 'hello';");
+     .equalsTo("/**\n * @type {string}\n */\nvar x = 'hello';");
     assertThat(transpile("var x: any = 'hi';"))
-     .equalsTo("/** @type {*} **/\nvar x = 'hi';");
+     .equalsTo("/**\n * @type {*}\n */\nvar x = 'hi';");
     assertThat(transpile("var x: object = {};"))
-     .equalsTo("/** @type {Object} **/\nvar x = {};");
+     .equalsTo("/**\n * @type {Object}\n */\nvar x = {};");
     assertThat(transpile("var x: undefined;"))
-     .equalsTo("/** @type {undefined} **/\nvar x;");
+     .equalsTo("/**\n * @type {undefined}\n */\nvar x;");
     assertThat(transpile("var x: null;"))
-     .equalsTo("/** @type {null} **/\nvar x;");
+     .equalsTo("/**\n * @type {null}\n */\nvar x;");
 
     try {
      transpile("var x: void;");
@@ -181,10 +227,32 @@ var x: number = 42;
 
     assertThat(result).equalsTo(`
 /** hello world **/
-/** @type {number} **/
+/**
+ * @type {number}
+ */
 var x = 42;
     `);
   });
+
+  it("Parsing params in function declarations", function() {
+    parse("function add(a: number, b: string) {}");
+    parse("function add(a: boolean, b: object) {}");
+    parse("function add(a: null, b: undefined) {}");
+    parse("function add(a: any, b: void) {}");
+  });
+
+  it("Parsing params in function declarations", function() {
+    assertThat(transpile("function add(a: number, b: string) {}"))
+     .equalsTo(`
+/**
+ * @param {number} a
+ * @param {string} b
+ */
+function add(a, b) {
+}
+`);
+  });
+
 
   function assertThat(x) {
    return {
