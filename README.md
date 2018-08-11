@@ -70,6 +70,8 @@ Pluggable type systems enable the **standard** javascript language to:
 1. steer **convergence** on syntax of type systems for JS 
 1. place a **stepping stone** on a possible path towards finding a unified [optional type system](http://code.sgo.to/proposal-optional-types/)
 
+Browsers could, potentially, connect with a [language server](https://github.com/Microsoft/language-server-protocol) and offer type checks during **development** time (e.g. possibly even catching runtime type checking information).
+
 Having said that, the main **drawback** with pluggable type systems for TC39 it that they corner ourselves from **gradual typing** (i.e. once introduced without runtime type checking, they can't add them afterwards without introducing extra syntax).
 
 We believe, however, that there is significant evidence in the research literature that gradual typing incurs a significant performance penalty, which makes it impractical. In addition, TypeScript, Flow, and Closure Compiler have demonstrated that optional typing works well for JS at scale.
